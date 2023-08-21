@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Information</title>
+    <style>
+        /* Style for team details */
+        .team-details {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            background-color: #f5f5f5;
+        }
+
+        .player-cards {
+            display: flex;
+            flex-wrap: wrap; /* Allow cards to wrap to the next line if necessary */
+            justify-content: center; /* Center horizontally within the container */
+        }
+
+        /* Style for player card boxes */
+        .player-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            width: calc(10% - 5px); /* Adjust the width for responsiveness */
+            text-align: center;
+            box-sizing: border-box;
+            background-color: #f5f5f5; /* Background color for the card */
+        }
+        
+        .player-card-link {
+            text-decoration: none; /* Remove underline */
+            cursor: pointer; /* Change cursor style */
+            color: #474747; /* Change text color to a clickable link color */
+        }
+
+        /* Style for player names */
+        .player-name {
+            font-weight: bold;
+        }
+
+        /* Style for player last names */
+        .player-lastname {
+            color: #666;
+        }
+
+        /* Style for the header */
+        header {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Team Information</h1>
+    </header>
+
+    <div class="team-details">
+        <!-- Display team details (except ID) -->
+        <h2>Team Details</h2>
+        <p><strong>Abbreviation:</strong> {{ teams.abbreviation }}</p>
+        <p><strong>City:</strong> {{ teams.city }}</p>
+        <p><strong>Conference:</strong> {{ teams.conference }}</p>
+        <p><strong>Division:</strong> {{ teams.division }}</p>
+        <p><strong>Full Name:</strong> {{ teams.full_name }}</p>
+        <p><strong>Team Name:</strong> {{ teams.name }}</p>
+    </div>
+
+    <a href="{{ url_for('home') }}">Back to Home</a>
+
+    <h2>Players</h2>
+    <div class="player-cards">
+        <!-- Display player cards -->
+        {% for player in team_players %}
+            <div class="player-card">
+                <a href="{{ url_for('player', id=player.id) }}" class="player-card-link">
+                    <div class="player-name">{{ player.first_name }}</div>
+                    <div class="player-lastname">{{ player.last_name }}</div>
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

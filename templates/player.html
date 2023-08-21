@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Details</title>
+    <!-- Add any additional styles or scripts here if needed -->
+</head>
+<body>
+    <h1>Player Details</h1>
+    
+    <div class="player-details">
+        <ul>
+            {% if player.first_name %}
+                <li><strong>First Name:</strong> {{ player.first_name }}</li>
+            {% endif %}
+            {% if player.last_name %}
+                <li><strong>Last Name:</strong> {{ player.last_name }}</li>
+            {% endif %}
+            {% if player.position %}
+                <li><strong>Position:</strong> {{ player.position }}</li>
+            {% endif %}
+            {% if player.height_feet and player.height_inches %}
+                <li><strong>Height:</strong> {{ player.height_feet }} feet {{ player.height_inches }} inches</li>
+            {% endif %}
+            {% if player.weight_pounds %}
+                <li><strong>Weight:</strong> {{ player.weight_pounds }} pounds</li>
+            {% endif %}
+            {% if player.team %}
+                <li>
+                    <strong>Team:</strong> 
+                    <a href="{{ url_for('team', id=player.team.id) }}">{{ player.team.full_name }}</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    
+    <a href="{{ url_for('home') }}">Back to Home</a>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>projet</title>
+    <style>
+        /* Default styles for content sections */
+        .content-section {
+            display: none;
+        }
+
+        /* Style the navigation bar */
+        .navbar {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        /* Style the navigation buttons */
+        .nav-button {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Style the logout button */
+        .logout-button {
+            float: right;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Show the corresponding content section when a button is clicked */
+        .active {
+            display: block;
+        }
+
+        .player-cards {
+            display: flex;
+            flex-wrap: wrap; /* Allow cards to wrap to the next line if necessary */
+            justify-content: center; /* Center horizontally within the container */
+        }
+
+        /* Style for player card boxes */
+        .player-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            width: calc(10% - 5px); /* Adjust the width for responsiveness */
+            text-align: center;
+            box-sizing: border-box;
+            background-color: #f5f5f5; /* Background color for the card */
+        }
+        
+        .player-card-link {
+            text-decoration: none; /* Remove underline */
+            cursor: pointer; /* Change cursor style */
+            color: #474747; /* Change text color to a clickable link color */
+        }
+
+        /* Style for player names */
+        .player-name {
+            font-weight: bold;
+        }
+
+        /* Style for player last names */
+        .player-lastname {
+            color: #666; /* Color for last names */
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <div class="navbar">
+        <a class="nav-button" id="show-players">Joueurs</a>
+        <a class="nav-button" id="show-teams">Équipes</a>
+        <a class="nav-button" id="show-matches">Matchs</a>
+        <a class="logout-button" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <!-- Content section for Joueurs -->
+    <div class="content-section" id="players-section">
+        <h2>Joueurs</h2>
+        <!-- List of Players -->
+        <div class="player-cards">
+            {% for player in players %}
+                <div class="player-card">
+                    <a href="{{ url_for('player', id=player.id) }}" class="player-card-link">
+                        <div class="player-name">{{ player.first_name }}</div>
+                        <div class="player-lastname">{{ player.last_name }}</div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section" id="team-section">
+        <h2>Équipes</h2>
+        <!-- List of Players -->
+        <div class="player-cards">
+            {% for team in teams %}
+                <div class="player-card">
+                    <a href="{{ url_for('team', id=team.id) }}" class="player-card-link">
+                        <div class="player-name">{{ team.full_name }}</div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Content sections for Équipes and Matchs can be added similarly -->
+
+    <script>
+        // Get all navigation buttons and content sections
+        const navButtons = document.querySelectorAll('.nav-button');
+        const contentSections = document.querySelectorAll('.content-section');
+
+        // Add event listeners to navigation buttons
+        navButtons.forEach((button, index) => {
+            button.addEventListener('click', () => {
+                // Hide all content sections
+                contentSections.forEach(section => section.style.display = 'none');
+                // Show the corresponding content section
+                contentSections[index].style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
