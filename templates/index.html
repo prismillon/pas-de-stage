@@ -117,6 +117,25 @@
         </div>
     </div>
 
+    <div class="content-section" id="game-section">
+        <h2>Matches</h2>
+        <!-- Display match cards -->
+        <div class="player-cards">
+            {% for game in games %}
+            <div class="player-card">
+                <a href="/game/{{ game.id }}" class="player-card-link">
+                    <div class="player-name">
+                        {{ game.home_team.abbreviation }} VS {{ game.visitor_team.abbreviation }}
+                    </div>
+                    <div class="player-lastname">
+                        {{ game.date.split('T')[0] }}
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
     <!-- Content sections for Équipes and Matchs can be added similarly -->
 
     <script>

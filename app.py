@@ -1,5 +1,7 @@
-import requests
-import time
+import threading
+import asyncio
+import aiohttp
+
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 
@@ -14,37 +16,56 @@ player_list = {}
 team_list = {}
 game_list = {}
 
-response = requests.get(f"{api_url}players?per_page=100&page=0")
-if response.status_code == 200:
-    data = response.json()
 
-    for page in range(data['meta']['total_pages']):
-        response = requests.get(f"{api_url}players?per_page=100&page={page}")
-        if response.status_code == 200:
-            print(f"player request n°{page} success")
-            player_data = response.json()
-            for player in player_data['data']:
-                player_list[player['id']] = player
-            time.sleep(1)
-        else:
-            print(f"player request n°{page} error {response.status_code} aborting")
-            exit()
+async def fetch_api():
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{api_url}players?per_page=100&page=0") as response:
+            if response.status == 200:
+                data = await response.json()
 
-response = requests.get(f"{api_url}teams?page=0")
-if response.status_code == 200:
-    data = response.json()
+                for page in range(data['meta']['total_pages']):
+                    async with session.get(f"{api_url}players?per_page=100&page={page}") as response:
+                        if response.status == 200:
+                            print(f"player request n°{page+1}/{data['meta']['total_pages']} success")
+                            player_data = await response.json()
+                            for player in player_data['data']:
+                                player_list[player['id']] = player
+                            await asyncio.sleep(1)
+                        else:
+                            print(f"player request n°{page+1} error {response.status} aborting")
+                            exit()
 
-    for page in range(data['meta']['total_pages']):
-        response = requests.get(f"{api_url}teams?page={page}")
-        if response.status_code == 200:
-            print(f"team request n°{page} success")
-            team_data = response.json()
-            for team in team_data['data']:
-                team_list[team['id']] = team
-            time.sleep(1)
-        else:
-            print(f"team request n°{page} error {response.status_code} aborting")
-            exit()
+        async with session.get(f"{api_url}teams?page=0") as response:
+            if response.status == 200:
+                data = await response.json()
+
+                for page in range(data['meta']['total_pages']):
+                    async with session.get(f"{api_url}teams?page={page}") as response:
+                        if response.status == 200:
+                            print(f"team request n°{page+1}/{data['meta']['total_pages']} success")
+                            team_data = await response.json()
+                            for team in team_data['data']:
+                                team_list[team['id']] = team
+                            await asyncio.sleep(1)
+                        else:
+                            print(f"team request n°{page+1} error {response.status} aborting")
+                            exit()
+
+        async with session.get(f"{api_url}games?per_page=100&page=0") as response:
+            if response.status == 200:
+                data = await response.json()
+
+                for page in range(data['meta']['total_pages']):
+                    async with session.get(f"{api_url}games?per_page=100&page={page}") as response:
+                        if response.status == 200:
+                            print(f"game request n°{page+1}/{data['meta']['total_pages']} success")
+                            games_data = await response.json()
+                            for game in games_data['data']:
+                                game_list[game['id']] = game
+                            await asyncio.sleep(1)
+                        else:
+                            print(f"game request n°{page+1} error {response.status} aborting")
+                            exit()
 
 # Define your User model
 class User(db.Model):
@@ -52,16 +73,21 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)
 
+def run_api():
+    asyncio.run(fetch_api())
+
 # Create the database tables
 with app.app_context():
     db.create_all()
+    fetch_thread = threading.Thread(target=run_api)
+    fetch_thread.start()
 
 # Define routes
 @app.route('/')
 def home():
     if 'username' in session:
         #return player_list
-        return render_template('index.html', players=player_list.values(), teams=team_list.values())
+        return render_template('index.html', players=player_list.values(), teams=team_list.values(), games=game_list.values())
 
     return redirect(url_for('login'))
 
@@ -114,8 +140,11 @@ def logout():
 
 
 @app.route('/player/<id>')
-def player(id):
-    player = player_list[int(id)]
+async def player(id):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{api_url}players/{id}") as response:
+            if response.status == 200:
+                player = await response.json()
     
     if player:
         return render_template('player.html', player=player)
@@ -136,11 +165,17 @@ def team(id):
     else:
         return "Team not found", 404
 
-@app.route('/game')
-def game():
-    # Retrieve match data from your API or database
-    # Render a template that displays a list of match cards
-    return render_template('game.html', matches=game_data)
+@app.route('/game/<id>')
+async def game(id):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{api_url}games/{id}") as response:
+            if response.status == 200:
+                game = await response.json()
+    
+    if game:
+        return render_template('game.html', match=game)
+    else:
+        return "Game not found", 404
 
 
 if __name__ == '__main__':
